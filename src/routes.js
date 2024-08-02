@@ -4,6 +4,13 @@ const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
+//Vistas Usuarios
+const Areas = React.lazy(() => import('./views/areas/Areas'))
+const Celulares = React.lazy(() => import('./views/celulares/Celulares'))
+
+//
+
+
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
 const Breadcrumbs = React.lazy(() => import('./views/base/breadcrumbs/Breadcrumbs'))
@@ -51,16 +58,24 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
-const routes = [
-  { path: '/', exact: true, name: 'Home' },
+const routes = [  
+  { path: '/', exact: true, name: 'SIR' },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  
+  //Aqui van nuestras vistas//////////////////////////////////////////////////////////
+  { path: '/views/areas', name: 'Areas', element: Areas },
+  { path: '/views/celulares', name: 'Celulares', element: Celulares},
+  ////////////////////////////////////////////////////////////////////////////////////
+
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
   { path: '/base', name: 'Base', element: Cards, exact: true },
   { path: '/base/accordion', name: 'Accordion', element: Accordion },
   { path: '/base/breadcrumbs', name: 'Breadcrumbs', element: Breadcrumbs },
+  
   { path: '/base/cards', name: 'Cards', element: Cards },
+
   { path: '/base/carousels', name: 'Carousel', element: Carousels },
   { path: '/base/collapses', name: 'Collapse', element: Collapses },
   { path: '/base/list-groups', name: 'List Groups', element: ListGroups },

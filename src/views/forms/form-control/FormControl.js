@@ -25,7 +25,7 @@ const FormControl = () => {
             <DocsExample href="forms/form-control">
               <CForm>
                 <div className="mb-3">
-                  <CFormLabel htmlFor="exampleFormControlInput1">Email address</CFormLabel>
+                  <CFormLabel htmlFor="exampleFormControlInput1">Correo Electrónico</CFormLabel>
                   <CFormInput
                     type="email"
                     id="exampleFormControlInput1"
@@ -178,13 +178,13 @@ const FormControl = () => {
                 </div>
                 <div className="col-auto">
                   <CFormLabel htmlFor="inputPassword2" className="visually-hidden">
-                    Password
+                    Contraseña
                   </CFormLabel>
                   <CFormInput type="password" id="inputPassword2" placeholder="Password" />
                 </div>
                 <div className="col-auto">
                   <CButton color="primary" type="submit" className="mb-3">
-                    Confirm identity
+                    Confirmar Identidad
                   </CButton>
                 </div>
               </CForm>
