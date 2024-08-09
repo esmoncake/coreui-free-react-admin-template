@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import {
   CButton,
   CCard,
@@ -12,6 +13,7 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
+  CAlert
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
@@ -19,12 +21,25 @@ import { cilLockLocked, cilUser } from '@coreui/icons'
 const Login = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
-    navigate('/dashboard')
+    try {
+      const response = await axios.post('http://localhost:4000/login', { usuario: username, password })
+      if (response.data.success) {
+        // Redirige al dashboard si el inicio de sesión es exitoso
+        navigate('/dashboard')
+      } else {
+        // Muestra un mensaje de error si las credenciales no son válidas
+        setError('Usuario o contraseña incorrectos.')
+      }
+    } catch (err) {
+      console.error('Error during login:', err)
+      setError('Error al iniciar sesión. Inténtalo de nuevo más tarde.')
+    }
   }
 
   return (
@@ -37,6 +52,7 @@ const Login = () => {
                 <CForm onSubmit={handleSubmit}>
                   <h1>Login</h1>
                   <p className="text-body-secondary">Inicia Sesión en tu Cuenta</p>
+                  {error && <CAlert color="danger">{error}</CAlert>}
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
@@ -68,7 +84,7 @@ const Login = () => {
                     </CCol>
                     <CCol xs={6} className="text-right">
                       <CButton color="link" className="px-0">
-                        ¿Olvidaste tu Contrsaeña?
+                        ¿Olvidaste tu Contraseña?
                       </CButton>
                     </CCol>
                   </CRow>
@@ -81,4 +97,5 @@ const Login = () => {
     </div>
   )
 }
+
 export default Login

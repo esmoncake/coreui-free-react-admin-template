@@ -21,55 +21,56 @@ import {
     CTableHeaderCell,
     CTableRow,
     CFormInput,
+    CFormSelect,
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
 import { cilPlus, cilTrash, cilPen, cilPrint } from '@coreui/icons';
 
-const Areas = () => {
+const Usuarios = () => {
     const [rows, setRows] = useState([]);
     const [selectedRowId, setSelectedRowId] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [formData, setFormData] = useState({});
-    const [newAreaData, setNewAreaData] = useState({ area: '' });
+    const [newUserData, setNewUserData] = useState({ usuario: '', password: '', tipo: '' });
 
     useEffect(() => {
-        const fetchAreas = async () => {
+        const fetchUsuarios = async () => {
             try {
-                const response = await axios.get('http://localhost:4000/areas');
+                const response = await axios.get('http://localhost:4000/usuarios');
                 setRows(response.data);
             } catch (error) {
-                console.error('Error fetching areas:', error);
+                console.error('Error fetching usuarios:', error);
             }
         };
 
-        fetchAreas();
+        fetchUsuarios();
     }, []);
 
     const handleAddRow = async () => {
         try {
-            const response = await axios.post('http://localhost:4000/areas', newAreaData);
+            const response = await axios.post('http://localhost:4000/usuarios', newUserData);
             setRows([...rows, response.data]);
             setShowAddModal(false);
-            setNewAreaData({ area: '' });
+            setNewUserData({ usuario: '', password: '', tipo: '' });
         } catch (error) {
-            console.error('Error adding area:', error);
+            console.error('Error adding usuario:', error);
         }
     };
 
     const handleDeleteRow = async (id) => {
         try {
-            await axios.delete(`http://localhost:4000/areas/${id}`);
-            const newRows = rows.filter(row => row.idAreas !== id);
+            await axios.delete(`http://localhost:4000/usuarios/${id}`);
+            const newRows = rows.filter(row => row.idUsuario !== id);
             setRows(newRows);
             setSelectedRowId(null);
         } catch (error) {
-            console.error('Error deleting area:', error);
+            console.error('Error deleting usuario:', error);
         }
     };
 
     const handleEditRow = (id) => {
-        const rowToEdit = rows.find(row => row.idAreas === id);
+        const rowToEdit = rows.find(row => row.idUsuario === id);
         setFormData(rowToEdit);
         setSelectedRowId(id);
         setShowEditModal(true);
@@ -80,19 +81,19 @@ const Areas = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleNewAreaChange = (e) => {
+    const handleNewUserChange = (e) => {
         const { name, value } = e.target;
-        setNewAreaData({ ...newAreaData, [name]: value });
+        setNewUserData({ ...newUserData, [name]: value });
     };
 
     const handleSaveEdit = async () => {
         try {
-            const response = await axios.put(`http://localhost:4000/areas/${selectedRowId}`, formData);
-            const updatedRows = rows.map(row => row.idAreas === selectedRowId ? response.data : row);
+            const response = await axios.put(`http://localhost:4000/usuarios/${selectedRowId}`, formData);
+            const updatedRows = rows.map(row => row.idUsuario === selectedRowId ? response.data : row);
             setRows(updatedRows);
             setShowEditModal(false);
         } catch (error) {
-            console.error('Error updating area:', error);
+            console.error('Error updating usuario:', error);
         }
     };
 
@@ -128,7 +129,7 @@ const Areas = () => {
                 <CCol xs={12}>
                     <CCard className="mb-2">
                         <CCardHeader>
-                            Tabla Áreas
+                            Tabla Usuarios
                             <div className="d-flex justify-content-end">
                                 <CButton color="primary" onClick={() => setShowAddModal(true)} className="me-2">
                                     <CIcon icon={cilPlus} /> Añadir
@@ -148,19 +149,19 @@ const Areas = () => {
                             <CTable id="table-to-pdf" align="middle" className="mb-0 border" hover responsive>
                                 <CTableHead className="text-nowrap">
                                     <CTableRow>
-                                        <CTableHeaderCell className="bg-body-tertiary">ID</CTableHeaderCell>
-                                        <CTableHeaderCell className="bg-body-tertiary">Area</CTableHeaderCell>
+                                        <CTableHeaderCell className="bg-body-tertiary">Usuario</CTableHeaderCell>
+                                        <CTableHeaderCell className="bg-body-tertiary">Tipo</CTableHeaderCell>
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>
                                     {rows.map(row => (
                                         <CTableRow
-                                            key={row.idAreas}
-                                            onClick={() => setSelectedRowId(row.idAreas)}
-                                            className={row.idAreas === selectedRowId ? 'table-active' : ''}
+                                            key={row.idUsuario}
+                                            onClick={() => setSelectedRowId(row.idUsuario)}
+                                            className={row.idUsuario === selectedRowId ? 'table-active' : ''}
                                         >
-                                            <CTableDataCell>{row.idAreas}</CTableDataCell>
-                                            <CTableDataCell>{row.area}</CTableDataCell>
+                                            <CTableDataCell>{row.usuario}</CTableDataCell>
+                                            <CTableDataCell>{row.tipo}</CTableDataCell>
                                         </CTableRow>
                                     ))}
                                 </CTableBody>
@@ -173,15 +174,32 @@ const Areas = () => {
             {/* Modal para agregar */}
             <CModal visible={showAddModal} onClose={() => setShowAddModal(false)}>
                 <CModalHeader>
-                    <h5>Añadir Area</h5>
+                    <h5>Añadir Usuario</h5>
                 </CModalHeader>
                 <CModalBody>
                     <CFormInput
-                        label="Nombre del Area"
-                        name="area"
-                        value={newAreaData.area}
-                        onChange={handleNewAreaChange}
+                        label="Nombre de Usuario"
+                        name="usuario"
+                        value={newUserData.usuario}
+                        onChange={handleNewUserChange}
                     />
+                    <CFormInput
+                        label="Contraseña"
+                        name="password"
+                        type="password"
+                        value={newUserData.password}
+                        onChange={handleNewUserChange}
+                    />
+                    <CFormSelect
+                        label="Tipo"
+                        name="tipo"
+                        value={newUserData.tipo}
+                        onChange={handleNewUserChange}
+                    >
+                        <option value="">Seleccionar Tipo</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Editor">Editor</option>
+                    </CFormSelect>
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="secondary" onClick={() => setShowAddModal(false)}>
@@ -196,16 +214,34 @@ const Areas = () => {
             {/* Modal para editar */}
             <CModal visible={showEditModal} onClose={() => setShowEditModal(false)}>
                 <CModalHeader>
-                    <h5>Editar Area</h5>
+                    <h5>Editar Usuario</h5>
                 </CModalHeader>
                 <CModalBody>
                     {formData && (
-                        <CFormInput
-                            label="Nombre del Area"
-                            name="area"
-                            value={formData.area}
-                            onChange={handleFormChange}
-                        />
+                        <>
+                            <CFormInput
+                                label="Nombre de Usuario"
+                                name="usuario"
+                                value={formData.usuario}
+                                onChange={handleFormChange}
+                            />
+                            <CFormInput
+                                label="Contraseña"
+                                name="password"
+                                type="password"
+                                value={formData.password}
+                                onChange={handleFormChange}
+                            />
+                            <CFormSelect
+                                label="Tipo"
+                                name="tipo"
+                                value={formData.tipo}
+                                onChange={handleFormChange}
+                            >
+                                <option value="Administrador">Administrador</option>
+                                <option value="Editor">Editor</option>
+                            </CFormSelect>
+                        </>
                     )}
                 </CModalBody>
                 <CModalFooter>
@@ -218,7 +254,7 @@ const Areas = () => {
                 </CModalFooter>
             </CModal>
         </>
-    )
+    );
 }
 
-export default Areas;
+export default Usuarios;

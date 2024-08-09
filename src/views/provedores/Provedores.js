@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import {
-  CAvatar,
   CButton,
   CCard,
   CCardBody,
@@ -20,13 +19,13 @@ import {
   CFormInput,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilPhone, cilPlus, cilTrash, cilPen, cilPrint } from '@coreui/icons'
+import { cilPlus, cilTrash, cilPen, cilPrint } from '@coreui/icons'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 
-const CelularesTable = () => {
+const ProveedoresTable = () => {
   const [rows, setRows] = useState([
-    { id: 1, marca: 'Samsung', modelo: 'Galaxy S21', noImei: '123456789012345', ubicacion: 'Office', estado: 'Nuevo', noTelefono: '555-1234', descripcion: 'Smartphone', personal: 'John Doe', proveedor: 'Proveedor XYZ' }
+    { id: 1, nombre: 'Proveedor A', contacto: 'Juan Pérez', correo: 'juan@example.com' },
   ])
   const [selectedRowId, setSelectedRowId] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -34,28 +33,16 @@ const CelularesTable = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [formData, setFormData] = useState({})
   const [newRowData, setNewRowData] = useState({
-    marca: '',
-    modelo: '',
-    noImei: '',
-    ubicacion: '',
-    estado: '',
-    noTelefono: '',
-    descripcion: '',
-    personal: '',
-    proveedor: ''
+    nombre: '',
+    contacto: '',
+    correo: ''
   })
 
   const handleAddRow = () => {
     setNewRowData({
-      marca: '',
-      modelo: '',
-      noImei: '',
-      ubicacion: '',
-      estado: '',
-      noTelefono: '',
-      descripcion: '',
-      personal: '',
-      proveedor: ''
+      nombre: '',
+      contacto: '',
+      correo: ''
     })
     setShowInsertModal(true)
   }
@@ -99,15 +86,9 @@ const CelularesTable = () => {
     setRows([...rows, newRow])
     setShowInsertModal(false)
     setNewRowData({
-      marca: '',
-      modelo: '',
-      noImei: '',
-      ubicacion: '',
-      estado: '',
-      noTelefono: '',
-      descripcion: '',
-      personal: '',
-      proveedor: ''
+      nombre: '',
+      contacto: '',
+      correo: ''
     })
   }
 
@@ -133,7 +114,7 @@ const CelularesTable = () => {
         heightLeft -= pageHeight
       }
 
-      pdf.save('table.pdf')
+      pdf.save('proveedores.pdf')
     })
   }
 
@@ -143,7 +124,7 @@ const CelularesTable = () => {
         <CCol xs={12}>
           <CCard className="mb-4">
             <CCardHeader>
-              Celulares Table
+              Proveedores Table
               <div className="d-flex justify-content-end">
                 <CButton color="primary" onClick={handleAddRow} className="me-2">
                   <CIcon icon={cilPlus} /> Añadir
@@ -164,18 +145,11 @@ const CelularesTable = () => {
                 <CTableHead className="text-nowrap">
                   <CTableRow>
                     <CTableHeaderCell className="bg-body-tertiary text-center">
-                      <CIcon icon={cilPhone} />
+                      #
                     </CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">ID</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Marca</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Modelo</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">No. IMEI</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Ubicación</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Estado</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">No. Teléfono</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Descripción</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Personal</CTableHeaderCell>
-                    <CTableHeaderCell className="bg-body-tertiary">Proveedor</CTableHeaderCell>
+                    <CTableHeaderCell className="bg-body-tertiary">Nombre</CTableHeaderCell>
+                    <CTableHeaderCell className="bg-body-tertiary">Contacto</CTableHeaderCell>
+                    <CTableHeaderCell className="bg-body-tertiary">Correo</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
@@ -186,18 +160,11 @@ const CelularesTable = () => {
                       className={row.id === selectedRowId ? 'table-active' : ''}
                     >
                       <CTableDataCell className="text-center">
-                        <CAvatar size="md" />
+                        {row.id}
                       </CTableDataCell>
-                      <CTableDataCell>{row.id}</CTableDataCell>
-                      <CTableDataCell>{row.marca}</CTableDataCell>
-                      <CTableDataCell>{row.modelo}</CTableDataCell>
-                      <CTableDataCell>{row.noImei}</CTableDataCell>
-                      <CTableDataCell>{row.ubicacion}</CTableDataCell>
-                      <CTableDataCell>{row.estado}</CTableDataCell>
-                      <CTableDataCell>{row.noTelefono}</CTableDataCell>
-                      <CTableDataCell>{row.descripcion}</CTableDataCell>
-                      <CTableDataCell>{row.personal}</CTableDataCell>
-                      <CTableDataCell>{row.proveedor}</CTableDataCell>
+                      <CTableDataCell>{row.nombre}</CTableDataCell>
+                      <CTableDataCell>{row.contacto}</CTableDataCell>
+                      <CTableDataCell>{row.correo}</CTableDataCell>
                     </CTableRow>
                   ))}
                 </CTableBody>
@@ -210,71 +177,29 @@ const CelularesTable = () => {
       {/* Modal para editar */}
       <CModal visible={showEditModal} onClose={() => setShowEditModal(false)}>
         <CModalHeader>
-          <h5>Editar Celda</h5>
+          <h5>Editar Proveedor</h5>
         </CModalHeader>
         <CModalBody>
           {formData && (
             <>
               <CFormInput
-                label="Marca"
-                name="marca"
-                value={formData.marca}
+                label="Nombre"
+                name="nombre"
+                value={formData.nombre}
                 onChange={handleFormChange}
                 className="mb-2"
               />
               <CFormInput
-                label="Modelo"
-                name="modelo"
-                value={formData.modelo}
+                label="Contacto"
+                name="contacto"
+                value={formData.contacto}
                 onChange={handleFormChange}
                 className="mb-2"
               />
               <CFormInput
-                label="No. IMEI"
-                name="noImei"
-                value={formData.noImei}
-                onChange={handleFormChange}
-                className="mb-2"
-              />
-              <CFormInput
-                label="Ubicación"
-                name="ubicacion"
-                value={formData.ubicacion}
-                onChange={handleFormChange}
-                className="mb-2"
-              />
-              <CFormInput
-                label="Estado"
-                name="estado"
-                value={formData.estado}
-                onChange={handleFormChange}
-                className="mb-2"
-              />
-              <CFormInput
-                label="No. Teléfono"
-                name="noTelefono"
-                value={formData.noTelefono}
-                onChange={handleFormChange}
-                className="mb-2"
-              />
-              <CFormInput
-                label="Descripción"
-                name="descripcion"
-                value={formData.descripcion}
-                onChange={handleFormChange}
-                className="mb-2"
-              />
-              <CFormInput
-                label="Personal"
-                name="personal"
-                value={formData.personal}
-                onChange={handleFormChange}
-                className="mb-2"
-              />
-              <CFormInput
-                label="Proveedor"
-                name="proveedor"
-                value={formData.proveedor}
+                label="Correo"
+                name="correo"
+                value={formData.correo}
                 onChange={handleFormChange}
                 className="mb-2"
               />
@@ -294,69 +219,27 @@ const CelularesTable = () => {
       {/* Modal para añadir */}
       <CModal visible={showInsertModal} onClose={() => setShowInsertModal(false)}>
         <CModalHeader>
-          <h5>Añadir Celda</h5>
+          <h5>Añadir Proveedor</h5>
         </CModalHeader>
         <CModalBody>
           <CFormInput
-            label="Marca"
-            name="marca"
-            value={newRowData.marca}
+            label="Nombre"
+            name="nombre"
+            value={newRowData.nombre}
             onChange={handleNewRowChange}
             className="mb-2"
           />
           <CFormInput
-            label="Modelo"
-            name="modelo"
-            value={newRowData.modelo}
+            label="Contacto"
+            name="contacto"
+            value={newRowData.contacto}
             onChange={handleNewRowChange}
             className="mb-2"
           />
           <CFormInput
-            label="No. IMEI"
-            name="noImei"
-            value={newRowData.noImei}
-            onChange={handleNewRowChange}
-            className="mb-2"
-          />
-          <CFormInput
-            label="Ubicación"
-            name="ubicacion"
-            value={newRowData.ubicacion}
-            onChange={handleNewRowChange}
-            className="mb-2"
-          />
-          <CFormInput
-            label="Estado"
-            name="estado"
-            value={newRowData.estado}
-            onChange={handleNewRowChange}
-            className="mb-2"
-          />
-          <CFormInput
-            label="No. Teléfono"
-            name="noTelefono"
-            value={newRowData.noTelefono}
-            onChange={handleNewRowChange}
-            className="mb-2"
-          />
-          <CFormInput
-            label="Descripción"
-            name="descripcion"
-            value={newRowData.descripcion}
-            onChange={handleNewRowChange}
-            className="mb-2"
-          />
-          <CFormInput
-            label="Personal"
-            name="personal"
-            value={newRowData.personal}
-            onChange={handleNewRowChange}
-            className="mb-2"
-          />
-          <CFormInput
-            label="Proveedor"
-            name="proveedor"
-            value={newRowData.proveedor}
+            label="Correo"
+            name="correo"
+            value={newRowData.correo}
             onChange={handleNewRowChange}
             className="mb-2"
           />
@@ -374,10 +257,10 @@ const CelularesTable = () => {
       {/* Modal para eliminar */}
       <CModal visible={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
         <CModalHeader>
-          <h5>Eliminar Celda</h5>
+          <h5>Confirmar Eliminación</h5>
         </CModalHeader>
         <CModalBody>
-          ¿Estás seguro de que deseas eliminar esta celda?
+          <p>¿Estás seguro de que deseas eliminar este proveedor?</p>
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setShowDeleteModal(false)}>
@@ -392,4 +275,4 @@ const CelularesTable = () => {
   )
 }
 
-export default CelularesTable
+export default ProveedoresTable

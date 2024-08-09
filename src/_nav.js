@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import CIcon from '@coreui/icons-react'
 import {
   cilDescription,
@@ -6,7 +6,8 @@ import {
   cilScreenSmartphone,
   cilUser,
   cilFile,
-  cilSpeedometer
+  cilSpeedometer,
+  cilCarAlt
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -23,7 +24,12 @@ const _nav = [
     to: '/views/areas',
     icon: <CIcon icon={cilAddressBook} customClassName="nav-icon" />,
   },
-
+  {
+    component: CNavItem,
+    name: 'Provedores',
+    to: '/views/provedores',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
   {
     component: CNavItem,
     name: 'Celulares',
@@ -38,14 +44,24 @@ const _nav = [
   {
     component: CNavItem,
     name: 'Elementos',
-    to: '/theme/colors', // This is the path to the table elements
+    to: '/views/personal', // This is the path to the table elements
     icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
     name: 'Expedientes',
-    to: '/theme/typography',
+    to: '/views/expedientes',
     icon: <CIcon icon={cilFile} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavTitle,
+    name: 'Automoviles'
+  },
+  {
+    component: CNavItem,
+    name: 'Automoviles',
+    to: '/views/automoviles',
+    icon: <CIcon icon={cilCarAlt} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
@@ -53,9 +69,9 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Docs',
-    href: 'https://coreui.io/react/docs/templates/installation/',
-    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+    name: 'Usuarios',
+    to: '/views/usuarios',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon"/>,
   },
 ]
 
