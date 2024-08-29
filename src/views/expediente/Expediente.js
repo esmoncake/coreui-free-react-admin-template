@@ -32,10 +32,11 @@ const Expedientes = () => {
     const [selectedExpedienteId, setSelectedExpedienteId] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [formData, setFormData] = useState({});
     const [newExpedienteData, setNewExpedienteData] = useState({
         expediente: 'No hay',
-        curp: 'Original',
+        curp: 'No hay',
         ine: 'No hay',
         certificado: 'No hay',
         comDomicilio: 'No hay',
@@ -43,8 +44,10 @@ const Expedientes = () => {
         nss: 'No hay',
         rfc: 'No hay',
         observaciones: '',
-        id_Personal: 0, // Cambiar nombre de campo a id_Personal
+        acta: 'No hay',
+        id_Personal: 0,
     });
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchExpedientes = async () => {
@@ -84,18 +87,20 @@ const Expedientes = () => {
                 nss: 'No hay',
                 rfc: 'No hay',
                 observaciones: '',
-                id_Personal: 0, // Restablecer a valor inicial
+                acta: 'No hay',
+                id_Personal: 0,
             });
         } catch (error) {
             console.error('Error adding expediente:', error);
         }
     };
 
-    const handleDeleteExpediente = async (id) => {
+    const handleDeleteExpediente = async () => {
         try {
-            await axios.delete(`http://localhost:4000/expedientes/${id}`);
-            const newExpedientes = expedientes.filter(expediente => expediente.idExpediente !== id);
+            await axios.delete(`http://localhost:4000/expedientes/${selectedExpedienteId}`);
+            const newExpedientes = expedientes.filter(expediente => expediente.idExpediente !== selectedExpedienteId);
             setExpedientes(newExpedientes);
+            setShowDeleteModal(false);
             setSelectedExpedienteId(null);
         } catch (error) {
             console.error('Error deleting expediente:', error);
@@ -120,7 +125,6 @@ const Expedientes = () => {
     };
 
     const handleSaveEdit = async () => {
-        console.log('Saving changes for expediente:', formData)
         try {
             const response = await axios.put(`http://localhost:4000/expedientes/${selectedExpedienteId}`, formData);
             const updatedExpedientes = expedientes.map(expediente =>
@@ -129,9 +133,9 @@ const Expedientes = () => {
             setExpedientes(updatedExpedientes);
             setShowEditModal(false);
         } catch (error) {
-            console.error('Error updating expediente:', error)
+            console.error('Error updating expediente:', error);
         }
-    }
+    };
 
     const handleGeneratePDF = () => {
         const input = document.getElementById('table-to-pdf');
@@ -159,6 +163,14 @@ const Expedientes = () => {
         });
     };
 
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const filteredExpedientes = expedientes.filter(expediente =>
+        expediente.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <>
             <CRow>
@@ -166,19 +178,28 @@ const Expedientes = () => {
                     <CCard className="mb-2">
                         <CCardHeader>
                             Tabla Expedientes
-                            <div className="d-flex justify-content-end">
-                                <CButton color="primary" onClick={() => setShowAddModal(true)} className="me-2">
-                                    <CIcon icon={cilPlus} /> Añadir
-                                </CButton>
-                                <CButton color="danger" onClick={() => handleDeleteExpediente(selectedExpedienteId)} disabled={selectedExpedienteId === null} className="me-2">
-                                    <CIcon icon={cilTrash} /> Eliminar
-                                </CButton>
-                                <CButton color="info" onClick={() => handleEditExpediente(selectedExpedienteId)} disabled={selectedExpedienteId === null} className="me-2">
-                                    <CIcon icon={cilPen} /> Editar
-                                </CButton>
-                                <CButton color="success" onClick={handleGeneratePDF}>
-                                    <CIcon icon={cilPrint} /> Generar PDF
-                                </CButton>
+                            <div className="d-flex justify-content-between">
+                                <div className="d-flex">
+                                    <CButton color="primary" onClick={() => setShowAddModal(true)} className="me-2">
+                                        <CIcon icon={cilPlus} /> Añadir
+                                    </CButton>
+                                    <CButton color="danger" onClick={() => setShowDeleteModal(true)} disabled={selectedExpedienteId === null} className="me-2">
+                                        <CIcon icon={cilTrash} /> Eliminar
+                                    </CButton>
+                                    <CButton color="info" onClick={() => handleEditExpediente(selectedExpedienteId)} disabled={selectedExpedienteId === null} className="me-2">
+                                        <CIcon icon={cilPen} /> Editar
+                                    </CButton>
+                                    <CButton color="success" onClick={handleGeneratePDF}>
+                                        <CIcon icon={cilPrint} /> Generar PDF
+                                    </CButton>
+                                </div>
+                                <CFormInput
+                                    type="text"
+                                    placeholder="Buscar por nombre"
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                    className="w-25"
+                                />
                             </div>
                         </CCardHeader>
                         <CCardBody>
@@ -188,6 +209,7 @@ const Expedientes = () => {
                                         <CTableHeaderCell>#</CTableHeaderCell>
                                         <CTableHeaderCell>Personal</CTableHeaderCell>
                                         <CTableHeaderCell>Expediente</CTableHeaderCell>
+                                        <CTableHeaderCell>Acta</CTableHeaderCell>
                                         <CTableHeaderCell>Curp</CTableHeaderCell>
                                         <CTableHeaderCell>INE</CTableHeaderCell>
                                         <CTableHeaderCell>Certificado</CTableHeaderCell>
@@ -199,14 +221,15 @@ const Expedientes = () => {
                                     </CTableRow>
                                 </CTableHead>
                                 <CTableBody>
-                                    {expedientes.map(expediente => (
+                                    {filteredExpedientes.map((expediente, index) => (
                                         <CTableRow
                                             key={expediente.idExpediente}
                                             onClick={() => setSelectedExpedienteId(expediente.idExpediente)}
                                             className={expediente.idExpediente === selectedExpedienteId ? 'table-active' : ''}>
-                                            <CTableDataCell>{expediente.idExpediente}</CTableDataCell>
+                                            <CTableDataCell>{index + 1}</CTableDataCell> {/* Número consecutivo */}
                                             <CTableDataCell>{expediente.nombre}</CTableDataCell>
                                             <CTableDataCell>{expediente.expediente}</CTableDataCell>
+                                            <CTableDataCell>{expediente.acta}</CTableDataCell>
                                             <CTableDataCell>{expediente.curp}</CTableDataCell>
                                             <CTableDataCell>{expediente.ine}</CTableDataCell>
                                             <CTableDataCell>{expediente.certificado}</CTableDataCell>
@@ -223,103 +246,130 @@ const Expedientes = () => {
                     </CCard>
                 </CCol>
             </CRow>
-            <CModal size="lg" visible={showEditModal} onClose={() => setShowEditModal(false)}>
+
+            {/* Modal de edición */}
+            <CModal visible={showEditModal} onClose={() => setShowEditModal(false)}>
                 <CModalHeader>
                     <h5>Editar Expediente</h5>
                 </CModalHeader>
                 <CModalBody>
-                    <CRow>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Expediente"
-                                type="text"
-                                name="expediente"
-                                value={formData.expediente}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Curp"
-                                type="text"
-                                name="curp"
-                                value={formData.curp}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="INE"
-                                type="text"
-                                name="ine"
-                                value={formData.ine}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Certificado"
-                                type="text"
-                                name="certificado"
-                                value={formData.certificado}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Comprobante de Domicilio"
-                                type="text"
-                                name="comDomicilio"
-                                value={formData.comDomicilio}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Cartilla"
-                                type="text"
-                                name="cartilla"
-                                value={formData.cartilla}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="NSS"
-                                type="text"
-                                name="nss"
-                                value={formData.nss}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="RFC"
-                                type="text"
-                                name="rfc"
-                                value={formData.rfc}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={12}>
-                            <CFormInput
-                                label="Observaciones"
-                                type="text"
-                                name="observaciones"
-                                value={formData.observaciones}
-                                onChange={handleFormChange}
-                            />
-                        </CCol>
-                    </CRow>
+                    <CFormSelect
+                        label="Expediente"
+                        name="expediente"
+                        value={formData.expediente || ''}
+                        onChange={handleFormChange}
+                    >
+                        <option value="No hay">No hay</option>
+                        <option value="Si hay">Sí hay</option>
+                    </CFormSelect>
+
+                    <CFormSelect
+                        label="Curp"
+                        name="curp"
+                        value={formData.curp || ''}
+                        onChange={handleFormChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+
+                    <CFormSelect
+                        label="INE"
+                        name="ine"
+                        value={formData.ine || ''}
+                        onChange={handleFormChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+
+                    <CFormSelect
+                        label="Certificado"
+                        name="certificado"
+                        value={formData.certificado || ''}
+                        onChange={handleFormChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+
+                    <CFormSelect
+                        label="Comprobante de Domicilio"
+                        name="comDomicilio"
+                        value={formData.comDomicilio || ''}
+                        onChange={handleFormChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+
+
+                    <CFormSelect
+                        label="Cartilla"
+                        name="cartilla"
+                        value={formData.cartilla || ''}
+                        onChange={handleFormChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+
+                    <CFormSelect
+                        label="NSS"
+                        name="nss"
+                        value={formData.nss || ''}
+                        onChange={handleFormChange}
+
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+
+                    <CFormSelect
+                        label="RFC"
+                        name="rfc"
+                        value={formData.rfc || ''}
+                        onChange={handleFormChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+
+                    <CFormInput
+                        label="Observaciones"
+                        name="observaciones"
+                        value={newExpedienteData.observaciones}
+                        onChange={handleNewExpedienteChange}
+                    />
+
+                    <CFormSelect
+                        label="Acta"
+                        name="acta"
+                        value={formData.acta || ''}
+                        onChange={handleFormChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+
                 </CModalBody>
+
                 <CModalFooter>
                     <CButton color="secondary" onClick={() => setShowEditModal(false)}>
                         Cancelar
@@ -329,126 +379,155 @@ const Expedientes = () => {
                     </CButton>
                 </CModalFooter>
             </CModal>
-            <CModal size="lg" visible={showAddModal} onClose={() => setShowAddModal(false)}>
+
+            {/* Modal de adición */}
+            <CModal visible={showAddModal} onClose={() => setShowAddModal(false)}>
                 <CModalHeader>
                     <h5>Agregar Expediente</h5>
                 </CModalHeader>
                 <CModalBody>
-                    <CRow>
-                        <CCol xs={12}>
-                            <CFormSelect
-                                label="Personal"
-                                name="id_Personal"
-                                value={newExpedienteData.id_Personal}
-                                onChange={handleNewExpedienteChange}
-                            >
-                                <option value={0}>Seleccione un personal</option>
-                                {personal.map(persona => (
-                                    <option key={persona.idPersonal} value={persona.idPersonal}>
-                                        {persona.nombre} {persona.apellido_paterno} {persona.apellido_materno}
-                                    </option>
-                                ))}
-                            </CFormSelect>
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Expediente"
-                                type="text"
-                                name="expediente"
-                                value={newExpedienteData.expediente}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Curp"
-                                type="text"
-                                name="curp"
-                                value={newExpedienteData.curp}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="INE"
-                                type="text"
-                                name="ine"
-                                value={newExpedienteData.ine}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Certificado"
-                                type="text"
-                                name="certificado"
-                                value={newExpedienteData.certificado}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Comprobante de Domicilio"
-                                type="text"
-                                name="comDomicilio"
-                                value={newExpedienteData.comDomicilio}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="Cartilla"
-                                type="text"
-                                name="cartilla"
-                                value={newExpedienteData.cartilla}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="NSS"
-                                type="text"
-                                name="nss"
-                                value={newExpedienteData.nss}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                        <CCol xs={6}>
-                            <CFormInput
-                                label="RFC"
-                                type="text"
-                                name="rfc"
-                                value={newExpedienteData.rfc}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                    </CRow>
-                    <CRow>
-                        <CCol xs={12}>
-                            <CFormInput
-                                label="Observaciones"
-                                type="text"
-                                name="observaciones"
-                                value={newExpedienteData.observaciones}
-                                onChange={handleNewExpedienteChange}
-                            />
-                        </CCol>
-                    </CRow>
+                    <CFormSelect
+                        label="Expediente"
+                        name="expediente"
+                        value={newExpedienteData.expediente}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="No hay">No hay</option>
+                        <option value="Si hay">Sí hay</option>
+                    </CFormSelect>
+
+                    <CFormSelect
+                        label="Curp"
+                        name="curp"
+                        value={newExpedienteData.curp}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+                    <CFormSelect
+                        label="INE"
+                        name="ine"
+                        value={newExpedienteData.ine}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+                    <CFormSelect
+                        label="Certificado"
+                        name="certificado"
+                        value={newExpedienteData.certificado}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+                    <CFormSelect
+                        label="Comprobante de Domicilio"
+                        name="comDomicilio"
+                        value={newExpedienteData.comDomicilio}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+                    <CFormSelect
+                        label="Cartilla"
+                        name="cartilla"
+                        value={newExpedienteData.cartilla}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+                    <CFormSelect
+                        label="NSS"
+                        name="nss"
+                        value={newExpedienteData.nss}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+                    <CFormSelect
+                        label="RFC"
+                        name="rfc"
+                        value={newExpedienteData.rfc}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+                    <CFormInput
+                        label="Observaciones"
+                        name="observaciones"
+                        value={newExpedienteData.observaciones}
+                        onChange={handleNewExpedienteChange}
+                    />
+                    <CFormSelect
+                        label="Acta"
+                        name="acta"
+                        value={newExpedienteData.acta}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value="Original">Original</option>
+                        <option value="Copia">Copia</option>
+                        <option value="Ambas">Ambas</option>
+                        <option value="No hay">No hay</option>
+                    </CFormSelect>
+                    <CFormSelect
+                        label="Personal"
+                        name="id_Personal"
+                        value={newExpedienteData.id_Personal}
+                        onChange={handleNewExpedienteChange}
+                    >
+                        <option value={0}>Selecciona Personal</option>
+                        {personal.map(persona => (
+                            <option key={persona.id_Personal} value={persona.id_Personal}>
+                                {persona.nombre}
+                            </option>
+                        ))}
+                    </CFormSelect>
                 </CModalBody>
                 <CModalFooter>
                     <CButton color="secondary" onClick={() => setShowAddModal(false)}>
                         Cancelar
                     </CButton>
                     <CButton color="primary" onClick={handleAddExpediente}>
-                        Guardar
+                        Agregar
+                    </CButton>
+                </CModalFooter>
+            </CModal>
+
+            {/* Modal de confirmación de eliminación */}
+            <CModal visible={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+                <CModalHeader>
+                    <h5>Eliminar Expediente</h5>
+                </CModalHeader>
+                <CModalBody>
+                    <p>¿Estás seguro de que deseas eliminar este expediente?</p>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="secondary" onClick={() => setShowDeleteModal(false)}>
+                        Cancelar
+                    </CButton>
+                    <CButton color="danger" onClick={handleDeleteExpediente}>
+                        Eliminar
                     </CButton>
                 </CModalFooter>
             </CModal>

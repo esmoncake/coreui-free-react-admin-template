@@ -28,12 +28,12 @@ const AppBreadcrumb = () => {
     })
     return breadcrumbs
   }
-
+ 
   const breadcrumbs = getBreadcrumbs(currentLocation)
 
   return (
     <CBreadcrumb className="my-0">
-      <CBreadcrumbItem href="/">Home</CBreadcrumbItem>
+      <CBreadcrumbItem href="/">Inicio</CBreadcrumbItem>
       {breadcrumbs.map((breadcrumb, index) => {
         return (
           <CBreadcrumbItem

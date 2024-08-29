@@ -4,25 +4,12 @@ import {
   CButton,
   CCard,
   CCardBody,
-  CCardFooter,
-  CCardGroup,
-  CCardHeader,
   CCardImage,
-  CCardLink,
-  CCardSubtitle,
   CCardText,
   CCardTitle,
-  CListGroup,
-  CListGroupItem,
-  CNav,
-  CNavItem,
-  CNavLink,
   CCol,
   CRow,
 } from '@coreui/react'
-
-import ReactImg from 'src/assets/images/react.jpg'
-import { cilAlignCenter } from '@coreui/icons'
 
 const Cards = ({c_tittle, c_text, c_image, c_url}) => {
   return (
